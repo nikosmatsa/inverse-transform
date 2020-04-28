@@ -1,0 +1,114 @@
+---
+title: "Inverse Transform Sampling Method (Computational Statistics & Stochastic Optimization MS.c Applied Mathematical Sciences NTUA)"
+author: "Nikos Matsavelas"
+date: "4/15/2020"
+output:
+  html_document: default
+  pdf_document: default
+---
+## Primary Task 
+
+Our goal is to simulate 10 samples with size $= 100$ from Cauchy distribution with location $=0$ and scale $=1$ parameters,in order to estimate the quantity: 
+
+$$\Theta = \int_{2}^{\infty} \frac{1}{\pi} \cdot \frac{1}{1+x^2} dx$$
+
+## Numerical Integral Evaluation 
+
+
+$$\int_{2}^{\infty} \frac{1}{\pi(1+x^2)} dx$$
+
+```{r}
+
+f = function(x){
+  1/(pi*(1+x^2))
+}
+integrate(f,2,Inf)
+
+```
+
+## Plot f(x)
+
+```{r}
+plot(f)
+```
+
+
+```{r}
+set.seed(1)
+
+set.seed(123)
+
+x <- list(v1=rcauchy(100,0,1),v2=rcauchy(100,0,1),v3=rcauchy(100,0,1),v4=rcauchy(100,0,1),v5=rcauchy(100,0,1),
+          v6=rcauchy(100,0,1),v7=rcauchy(100,0,1),v8=rcauchy(100,0,1),v9=rcauchy(100,0,1),v10=rcauchy(100,0,1))
+
+g = lapply(x,function(x) ifelse(x>2,1,0))
+g
+m = lapply(g,function(g) mean(g))
+m
+mean(unlist(m))
+sd(unlist(m))
+
+
+```
+
+
+
+
+
+
+
+## Proposal Function 
+
+We choose $$g(x) = \frac{2}{x^2},x \in (2,\infty)$$
+Integrating $g(x)$ we have : 
+$$\int_{2}^{\infty} \frac{2}{x^2} dx = \left[-\frac{2}{x}  \right]_{2}^{\infty} = 1$$
+
+```{r}
+g = function(x){
+   2/x^2
+}
+integrate(g,2,Inf)
+```
+
+## Plot the proposal function
+
+```{r}
+plot(g)
+```
+
+## Inverse method 1st Solution
+
+A) Simulate $U \sim U(0,1)$ and repeat 100 times
+B) Calculate the mean of $x_{i}$ with repsect to $$\mathbb{E}_{g}\left(\frac{x^2}{2\pi(1+x^2)}\right)$$
+
+
+```{r}
+
+set.seed(1234)
+
+x2 = list( v1=runif(100,0,1),v2=runif(100,0,1),v3=runif(100,0,1),v4=runif(100,0,1), v5=runif(100,0,1),
+           v6=runif(100,0,1),v7=runif(100,0,1),v8=runif(100,0,1),v9=runif(100,0,1),v10=runif(100,0,1))
+x2.1 = lapply(x2,function(x2) 2/x2)
+g2 = lapply(x2.1,function(x2.1)  x2.1^2/(2*pi*(1+x2.1^2)))   
+mean(unlist(g2))
+sd(unlist(g2))
+
+```
+
+## Inverse method 2nd Solution
+
+A) Simulate $U \sim U(0,1/2)$ and repeat 100 times
+B) Calculate the mean of $x_{i}$ with repsect to $$\mathbb{E}_{g}\left(\frac{1}{2\pi(1+x^2)}\right)$$
+
+
+```{r}
+set.seed(123)
+
+x3 <- list(v1=runif(100,0,1/2),v2=runif(100,0,1/2),v3=runif(100,0,1/2),v4=runif(100,0,1/2),v5=runif(100,0,1/2),
+          v6=runif(100,0,1/2),v7=runif(100,0,1/2),v8=runif(100,0,1/2),v9=runif(100,0,1/2),v10=runif(100,0,1/2))
+g3 = lapply(x3,function(x3) 1/((2*pi)*(1+x3^2)))
+m3 = lapply(g3,function(g3) mean(g3))
+mean(unlist(m3))
+sd(unlist(m3))
+```
+
